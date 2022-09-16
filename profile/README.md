@@ -39,6 +39,7 @@ It follows the list of the repositories in this organization with a brief descri
 
 ### Prerequisites
 
+- AWS CLI
 - AWS SAM
 - GitHub OAUTH Token
 
