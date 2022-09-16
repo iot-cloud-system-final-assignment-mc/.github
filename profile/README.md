@@ -41,7 +41,7 @@ It follows the list of the repositories in this organization with a brief descri
 
 - AWS CLI
 - AWS SAM
-- GitHub OAUTH Token
+- GitHub OAUTH Token (one with all repos policies)
 
 ### How to deploy
 
