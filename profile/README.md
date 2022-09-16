@@ -77,7 +77,7 @@ https://raw.githubusercontent.com/iot-cloud-system-final-assignment-mc/bootstrap
 
 AWS_REGION=xxx-xxxx-xx
 
-bash deploy_everything.sh $AWS_REGION
+bash destroy_everything.sh $AWS_REGION
 
 ```
 NOTE: Change all the Xs with the real information.
