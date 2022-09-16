@@ -60,7 +60,7 @@ SAM_S3_BUCKET=XXX
 bash deploy_everything.sh $ADMIN_EMAIL $GITHUB_OAUTH_TOKEN $AWS_REGION $SAM_S3_BUCKET
 
 ```
-NOTE: Change the all X with the real information.
+NOTE: Change all the Xs with the real information.
 NOTE2: If you want to automatically create the SAM_S3_BUCKET, leave it empty.
 
 
@@ -80,7 +80,7 @@ AWS_REGION=xxx-xxxx-xx
 bash deploy_everything.sh $AWS_REGION
 
 ```
-NOTE: Change the all X with the real information.
+NOTE: Change all the Xs with the real information.
 
 
 
