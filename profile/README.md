@@ -75,7 +75,7 @@ NOTE2: If you want to automatically create the SAM_S3_BUCKET, leave it empty.
 ```
 https://raw.githubusercontent.com/iot-cloud-system-final-assignment-mc/bootstrap-configuration/main/destroy_everything.sh
 
-AWS_REGION=XXX
+AWS_REGION=xxx-xxxx-xx
 
 bash deploy_everything.sh $AWS_REGION
 
@@ -85,3 +85,63 @@ NOTE: Change the all X with the real information.
 
 
 #### Steps-by-step
+
+1) Setup the AWS REGION local env:
+
+```
+AWS_REGION=xxx-xxxx-xx
+```
+
+2) Empty the S3 bucket inside the bootstrap stack:
+
+```
+BOOTSTRAP_S3_BUCKET=$(aws cloudformation list-exports --query "Exports[?Name=='Cloud-Systems-IoT-ApplicationSiteBucket'].Value" --output text)
+aws s3 rm s3://${BOOTSTRAP_S3_BUCKET} --recursive --region $1
+```
+
+3) Delete every stack with the resources of the infrastructure:
+
+```
+aws cloudformation delete-stack --stack-name bootstrap-resources --region $1
+aws cloudformation delete-stack --stack-name lambda-products --region $1
+aws cloudformation delete-stack --stack-name lambda-orders --region $1
+aws cloudformation delete-stack --stack-name auth-lambda --region $1
+aws cloudformation delete-stack --stack-name api-gateway --region $1
+```
+
+4) Empty the S3 bucket in every CodePipeline stack:
+
+```
+PIPELINE_BUCKET=$(aws cloudformation list-stack-resources --stack-name web-client --query "StackResourceSummaries[?LogicalResourceId == 'PipelineBucket'].PhysicalResourceId" --output text)
+aws s3 rm s3://${PIPELINE_BUCKET} --recursive --region $1
+
+PIPELINE_BUCKET=$(aws cloudformation list-stack-resources --stack-name lambda-products-pipeline --query "StackResourceSummaries[?LogicalResourceId == 'PipelineBucket'].PhysicalResourceId" --output text)
+aws s3 rm s3://${PIPELINE_BUCKET} --recursive --region $1
+
+PIPELINE_BUCKET=$(aws cloudformation list-stack-resources --stack-name lambda-orders-pipeline --query "StackResourceSummaries[?LogicalResourceId == 'PipelineBucket'].PhysicalResourceId" --output text)
+aws s3 rm s3://${PIPELINE_BUCKET} --recursive --region $1
+
+PIPELINE_BUCKET=$(aws cloudformation list-stack-resources --stack-name auth-lambda-pipeline --query "StackResourceSummaries[?LogicalResourceId == 'PipelineBucket'].PhysicalResourceId" --output text)
+aws s3 rm s3://${PIPELINE_BUCKET} --recursive --region $1
+
+PIPELINE_BUCKET=$(aws cloudformation list-stack-resources --stack-name api-gateway-pipeline --query "StackResourceSummaries[?LogicalResourceId == 'PipelineBucket'].PhysicalResourceId" --output text)
+aws s3 rm s3://${PIPELINE_BUCKET} --recursive --region $1
+```
+
+5) Delete every stack of CodePipelines resources:
+
+```
+aws cloudformation delete-stack --stack-name web-client --region $1
+aws cloudformation delete-stack --stack-name lambda-products-pipeline --region $1
+aws cloudformation delete-stack --stack-name lambda-orders-pipeline --region $1
+aws cloudformation delete-stack --stack-name auth-lambda-pipeline --region $1
+aws cloudformation delete-stack --stack-name api-gateway-pipeline --region $1
+```
+
+6) Optional: Empty and delete the S3 used to store AWS SAM artifacts
+
+```
+SAM_S3_BUCKET=XXX
+aws s3 rm s3://${SAM_S3_BUCKET} --recursive --region $1
+aws s3 delete-bucket --bucket ${SAM_S3_BUCKET}
+```
