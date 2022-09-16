@@ -67,6 +67,114 @@ NOTE2: If you want to automatically create the SAM_S3_BUCKET, leave it empty.
 
 #### Steps-by-step
 
+1) Set the env variables:
+
+```
+ADMIN_EMAIL=xx
+GITHUB_OAUTH_TOKEN=xx
+AWS_REGION=xx
+```
+NOTE: Change all the Xs with the real information.
+
+2) Set the SAM_S3_BUCKET env (PLEASE perform only one of these two actions:
+
+2a) Create the bucket
+
+```
+SAM_S3_BUCKET="iot-cloud-systems-sam-$(date +%s)"
+aws s3 mb s3://${SAM_S3_BUCKET} --region ${AWS_REGION}
+```
+
+2b) Use an existing bucket
+
+```
+SAM_S3_BUCKET=xxxx
+```
+NOTE: Change all the Xs with the real information.
+
+3) Setup the folders
+
+```
+mkdir products-app
+cd products-app
+git clone https://github.com/iot-cloud-system-final-assignment-mc/bootstrap-configuration.git
+git clone https://github.com/iot-cloud-system-final-assignment-mc/lambda-products.git
+git clone https://github.com/iot-cloud-system-final-assignment-mc/lambda-orders.git
+git clone https://github.com/iot-cloud-system-final-assignment-mc/auth-lambda.git
+git clone https://github.com/iot-cloud-system-final-assignment-mc/api-gateway.git
+git clone https://github.com/iot-cloud-system-final-assignment-mc/web-client.git
+```
+
+4) Create the bootstrap-configuration stack:
+
+```
+cd bootstrap-configuration
+sam deploy -t template.yml --stack-name bootstrap-resources  --s3-bucket $SAM_S3_BUCKET --s3-prefix bootstrap-resources --region $AWS_REGION --capabilities CAPABILITY_AUTO_EXPAND --parameter-overrides AdminEmailParameter=$ADMIN_EMAIL
+cd ..
+```
+
+5) Setup the env variable for the LAYER resource (needed for lambdas stacks):
+
+```
+LAYER_ARN=$(aws cloudformation list-exports --region ${AWS_REGION} --query "Exports[?Name=='Cloud-Systems-IoT-HttpUtilsLayerArn'].Value" --output text)
+```
+
+6) Deploy the remaining stacks
+
+```
+cd lambda-products
+cd code && npm install && cd ..
+sam build
+sam deploy -t ./.aws-sam/build/template.yaml --stack-name lambda-products --s3-bucket $SAM_S3_BUCKET --s3-prefix lambda-products --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides UtilsLayerArn=$LAYER_ARN
+cd ..
+
+cd lambda-orders
+cd code && npm install && cd ..
+sam build
+sam deploy -t ./.aws-sam/build/template.yaml --stack-name lambda-orders --s3-bucket $SAM_S3_BUCKET --s3-prefix lambda-orders --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides UtilsLayerArn=$LAYER_ARN
+cd ..
+
+cd auth-lambda
+cd code && npm install && cd ..
+sam build
+sam deploy -t ./.aws-sam/build/template.yaml --stack-name auth-lambda --s3-bucket $SAM_S3_BUCKET --s3-prefix auth-lambda --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides UtilsLayerArn=$LAYER_ARN
+cd ..
+
+cd api-gateway
+sam deploy -t template.yml --stack-name api-gateway --s3-bucket $SAM_S3_BUCKET --s3-prefix api-gateway --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM
+cd ..
+```
+
+7) Deploy the pipelines:
+
+```
+DEPLOY_BUCKET=$(aws cloudformation list-exports --region ${AWS_REGION} --query "Exports[?Name=='Cloud-Systems-IoT-ApplicationSiteBucket'].Value" --output text)
+cd web-client
+sam deploy -t pipeline-template.yml --stack-name web-client-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix web-client --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN DeployBucket=$DEPLOY_BUCKET
+cd ..
+
+cd lambda-products
+sam deploy -t pipeline-template.yml --stack-name lambda-products-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix lambda-products-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
+cd ..
+
+cd lambda-orders
+sam deploy -t pipeline-template.yml --stack-name lambda-orders-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix lambda-orders-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
+cd ..
+
+cd auth-lambda
+sam deploy -t pipeline-template.yml --stack-name auth-lambda-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix auth-lambda-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
+cd ..
+
+cd api-gateway
+sam deploy -t pipeline-template.yml --stack-name api-gateway-pipeline --s3-bucket $SAM_S3_BUCKET --s3-prefix api-gateway-pipeline --region $AWS_REGION --capabilities CAPABILITY_NAMED_IAM --parameter-overrides GithubOAuthToken=$GITHUB_OAUTH_TOKEN s3SamBucket=$SAM_S3_BUCKET
+cd ..
+```
+
+8) Retrieve the URL of the website:
+
+```
+aws cloudformation list-exports --region ${AWS_REGION} --query "Exports[?Name=='Cloud-Systems-IoT-ApplicationSite'].Value" --output text
+```
 
 ## Destroy the infrastructure
 
@@ -76,12 +184,13 @@ NOTE2: If you want to automatically create the SAM_S3_BUCKET, leave it empty.
 https://raw.githubusercontent.com/iot-cloud-system-final-assignment-mc/bootstrap-configuration/main/destroy_everything.sh
 
 AWS_REGION=xxx-xxxx-xx
+SAM_S3_BUCKET=xxx
 
-bash destroy_everything.sh $AWS_REGION
+bash destroy_everything.sh $AWS_REGION $SAM_S3_BUCKET
 
 ```
 NOTE: Change all the Xs with the real information.
-
+NOTE 2: If you set the SAM_S3_BUCKET env, it will delete that bucket at the end of the script
 
 
 #### Steps-by-step
