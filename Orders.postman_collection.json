@@ -1,0 +1,115 @@
+{
+	"info": {
+		"_postman_id": "ec4d1995-e569-4a23-bd00-b107dbfbcc77",
+		"name": "Orders",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Orders",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/orders",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upsert Order",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"product_id\": \"7f5b4797-a794-46a3-a2c0-ccfdab6ac733\",\n    \"username\": \"admin\",\n    \"quantity\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/order",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Order",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"product_id\": \"7f5b4797-a794-46a3-a2c0-ccfdab6ac733\",\n    \"username\": \"admin\",\n    \"quantity\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/order/:order_id",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"order",
+						":order_id"
+					],
+					"variable": [
+						{
+							"key": "order_id",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJraWQiOiJSaUtRUTlXNmxQTE03eGtrcG5SUHptVEN5UTJNSlNmTXRHcXhEWnMzUzgwPSIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiQjNXMjhtOTdlTEJaLWM1blBGeXlHQSIsInN1YiI6IjA0ZjFjYmFhLTA0NjktNGY3Mi1iZDg2LTRjNWYyYTZjOGViMSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtd2VzdC0xLmFtYXpvbmF3cy5jb21cL2V1LXdlc3QtMV9JblZvSk1tczYiLCJjb2duaXRvOnVzZXJuYW1lIjoibWFyY28iLCJhdWQiOiI1bmZkbDVuOGExYWEzcHRzMWhxc3U5b2VmaSIsImV2ZW50X2lkIjoiM2U1NDc1ZjAtZDFmMi00ZmQ2LWEzZjYtYmQ0OWUyYjg4NmZkIiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE2NjMwODg2NzMsImV4cCI6MTY2MzA5MjI3MywiaWF0IjoxNjYzMDg4NjczLCJqdGkiOiI1ZmY0NjZjNS1kZDBjLTRjMjItOWQ3ZS0xYTkwMTQxZjUyZWQiLCJlbWFpbCI6ImNtYXJjb3M0NkBnbWFpbC5jb20ifQ.dHDTSSBk66zwzE2_KvXEHrwanDHO40aQFJXRz9nqOAiITDTAxPDDQ3FBseNDXy2TYMLog_vXFVtfePEGlJCqvty43t_hDtLqajv9LOSArsFr_q3JL8sw-Rk0Uwr935xWdySY9ZdS-0Mf9pXljCk3rDDqoIg9Cvss2GKjOANg0wZHm_v4VSv4TPqDZ8SR8lR4V-WdgR9Mf8SOZcpEoH1B_5pnYths30jYVMiO9dOHyfo4nC8LiZBvtngNwMZzJLR1KF8KamCvKH9ttQvXM852rcM7ckPQN_sDDLDviv0FCZvFGm7jcIE39whthBrHGvPp87YvT9QUHW__arDvEhAKTQ",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
